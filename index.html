@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activity Center</title>
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #7ed321;
+        --accent-color: #f5a623;
+        --text-color: #333;
+        --bg-color: #ffffff;
+        --card-bg: #f8f9fa;
+        --border-color: #e1e5e9;
+      }
+
+      [data-theme="dark"] {
+        --text-color: #ffffff;
+        --bg-color: #1a1a1a;
+        --card-bg: #2d2d2d;
+        --border-color: #404040;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: all 0.3s ease;
+        line-height: 1.6;
+      }
+
+      .header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+      }
+
+      .theme-toggle {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .main-nav {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .nav-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .nav-btn:hover,
+      .nav-btn.active {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .section {
+        display: none;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .activity-card {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .activity-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-color);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .card-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+      }
+
+      .card-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: var(--border-color);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1rem 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--secondary-color),
+          var(--accent-color)
+        );
+        transition: width 0.3s ease;
+      }
+
+      .btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        margin: 0.5rem;
+      }
+
+      .btn:hover {
+        background: var(--secondary-color);
+      }
+
+      .btn.success {
+        background: var(--secondary-color);
+      }
+
+      .btn.warning {
+        background: var(--accent-color);
+      }
+
+      .game-area {
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 1rem 0;
+        text-align: center;
+      }
+
+      .memory-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .memory-card {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-color);
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        transition: all 0.3s ease;
+      }
+
+      .memory-card:hover {
+        transform: scale(1.05);
+      }
+
+      .memory-card.flipped {
+        background: var(--secondary-color);
+      }
+
+      .tracker {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .score {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--secondary-color);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: var(--bg-color);
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .close {
+        float: right;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--text-color);
+      }
+
+      .timer {
+        font-size: 2rem;
+        text-align: center;
+        margin: 1rem 0;
+        color: var(--primary-color);
+      }
+
+      .breathing-circle {
+        width: 200px;
+        height: 200px;
+        border: 4px solid var(--primary-color);
+        border-radius: 50%;
+        margin: 2rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 4s ease;
+      }
+
+      .breathing-circle.expand {
+        transform: scale(1.3);
+        background: rgba(74, 144, 226, 0.1);
+      }
+
+      .checklist {
+        list-style: none;
+      }
+
+      .checklist li {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        background: var(--card-bg);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .checklist li:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .checklist li.completed {
+        background: var(--secondary-color);
+        color: white;
+        text-decoration: line-through;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 1rem;
+          text-align: center;
+        }
+
+        .main-nav {
+          justify-content: center;
+        }
+
+        .container {
+          padding: 1rem;
+        }
+
+        .activity-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">🌟 Activity Center</div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+
+      <nav class="main-nav">
+        <button class="nav-btn active" onclick="showSection('overview')">
+          Overview
+        </button>
+        <button class="nav-btn" onclick="showSection('sensory')">
+          Sensory
+        </button>
+        <button class="nav-btn" onclick="showSection('communication')">
+          Communication
+        </button>
+        <button class="nav-btn" onclick="showSection('travel')">Travel</button>
+        <button class="nav-btn" onclick="showSection('community')">
+          Community
+        </button>
+        <button class="nav-btn" onclick="showSection('coping')">Coping</button>
+        <button class="nav-btn" onclick="showSection('life-skills')">
+          Life Skills
+        </button>
+        <button class="nav-btn" onclick="showSection('health')">Health</button>
+      </nav>
+    </header>
+
+    <div class="container">
+      <!-- Overview Section -->
+      <section id="overview" class="section active">
+        <h1>Welcome to Your Activity Center! 🎯</h1>
+        <p style="font-size: 1.2rem; margin: 1rem 0">
+          Track your progress and enjoy fun activities designed just for you.
+        </p>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">📊</span>
+              <span class="card-title">Today's Progress</span>
+            </div>
+            <div class="tracker">
+              <span>Activities Completed:</span>
+              <span class="score" id="daily-score">0/8</span>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 0%"
+                id="daily-progress"
+              ></div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🏆</span>
+              <span class="card-title">Weekly Stars</span>
+            </div>
+            <div style="font-size: 2rem; text-align: center; margin: 1rem 0">
+              <span id="weekly-stars">⭐⭐⭐</span>
+            </div>
+            <p>Keep up the great work!</p>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🎮</span>
+              <span class="card-title">Quick Game</span>
+            </div>
+            <p>Start with a fun memory game!</p>
+            <button class="btn" onclick="showSection('sensory')">
+              Play Now
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sensory Section -->
+      <section id="sensory" class="section">
+        <h2>🌈 Sensory Activities</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🧠</span>
+              <span class="card-title">Memory Game</span>
+            </div>
+            <p>Match the colors to improve memory and focus.</p>
+            <button class="btn" onclick="startMemoryGame()">Start Game</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🎨</span>
+              <span class="card-title">Color Therapy</span>
+            </div>
+            <p>Change background colors for calming effects.</p>
+            <div style="display: flex; gap: 10px; margin-top: 1rem">
+              <button
+                class="btn"
+                style="background: #ff6b6b"
+                onclick="changeBackground('#ff6b6b')"
+              >
+                Red
+              </button>
+              <button
+                class="btn"
+                style="background: #4ecdc4"
+                onclick="changeBackground('#4ecdc4')"
+              >
+                Teal
+              </button>
+              <button
+                class="btn"
+                style="background: #45b7d1"
+                onclick="changeBackground('#45b7d1')"
+              >
+                Blue
+              </button>
+              <button
+                class="btn"
+                style="background: #96ceb4"
+                onclick="changeBackground('#96ceb4')"
+              >
+                Green
+              </button>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🎵</span>
+              <span class="card-title">Sound Patterns</span>
+            </div>
+            <p>Listen and repeat sound sequences.</p>
+            <button class="btn" onclick="playSoundPattern()">
+              Play Pattern
+            </button>
+            <div
+              id="sound-sequence"
+              style="margin-top: 1rem; font-size: 2rem"
+            ></div>
+          </div>
+        </div>
+
+        <div class="game-area" id="memory-game" style="display: none">
+          <h3>Memory Game</h3>
+          <p>Click cards to find matching pairs!</p>
+          <div class="timer" id="game-timer">Time: 0s</div>
+          <div class="memory-grid" id="memory-grid"></div>
+          <div style="margin-top: 1rem">
+            <button class="btn" onclick="resetMemoryGame()">Reset Game</button>
+            <button class="btn warning" onclick="closeMemoryGame()">
+              Close
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Communication section -->
+      <section id="communication" class="section">
+        <h2>💬 Communication Skills</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🗣️</span>
+              <span class="card-title">Daily Phrases</span>
+            </div>
+            <p>Practice common phrases for everyday situations.</p>
+            <button class="btn" onclick="showPhrases()">Practice Now</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">👋</span>
+              <span class="card-title">Greeting Practice</span>
+            </div>
+            <p>Learn appropriate greetings for different times and places.</p>
+            <div style="margin-top: 1rem">
+              <button class="btn" onclick="playGreeting('morning')">
+                Morning
+              </button>
+              <button class="btn" onclick="playGreeting('afternoon')">
+                Afternoon
+              </button>
+              <button class="btn" onclick="playGreeting('evening')">
+                Evening
+              </button>
+            </div>
+            <div
+              id="greeting-display"
+              style="margin-top: 1rem; font-size: 1.2rem"
+            ></div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">❓</span>
+              <span class="card-title">Question Builder</span>
+            </div>
+            <p>Learn to ask questions in different situations.</p>
+            <button class="btn" onclick="buildQuestion()">
+              Build Question
+            </button>
+            <div
+              id="question-display"
+              style="
+                margin-top: 1rem;
+                padding: 1rem;
+                background: var(--card-bg);
+                border-radius: 8px;
+              "
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Travel Training Section -->
+      <section id="travel" class="section">
+        <h2>🚌 Travel Training</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🚦</span>
+              <span class="card-title">Traffic Safety</span>
+            </div>
+            <p>Learn traffic signals and crossing safely.</p>
+            <button class="btn" onclick="trafficQuiz()">Take Quiz</button>
+            <div id="traffic-quiz" style="margin-top: 1rem"></div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🎫</span>
+              <span class="card-title">Public Transport</span>
+            </div>
+            <p>Practice using buses and trains.</p>
+            <button class="btn" onclick="transportPractice()">Practice</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🗺️</span>
+              <span class="card-title">Route Planning</span>
+            </div>
+            <p>Plan routes to common destinations.</p>
+            <button class="btn" onclick="routePlanner()">Plan Route</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Community Integration Section -->
+      <section id="community" class="section">
+        <h2>🏪 Community Integration</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🛒</span>
+              <span class="card-title">Shopping Skills</span>
+            </div>
+            <p>Practice shopping and money handling.</p>
+            <button class="btn" onclick="shoppingGame()">Shopping Game</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🏪</span>
+              <span class="card-title">Store Locations</span>
+            </div>
+            <p>Learn about different types of stores and services.</p>
+            <button class="btn" onclick="storeMatch()">Match Stores</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🤝</span>
+              <span class="card-title">Social Interactions</span>
+            </div>
+            <p>Practice polite interactions in public spaces.</p>
+            <button class="btn" onclick="socialScenario()">
+              Practice Scenarios
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coping Skills Section -->
+      <section id="coping" class="section">
+        <h2>🧘 Coping Skills</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🫁</span>
+              <span class="card-title">Breathing Exercise</span>
+            </div>
+            <p>Calm down with guided breathing.</p>
+            <button class="btn" onclick="startBreathing()">
+              Start Breathing
+            </button>
+            <div
+              class="breathing-circle"
+              id="breathing-circle"
+              style="display: none"
+            >
+              <span id="breathing-text">Breathe In</span>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">😌</span>
+              <span class="card-title">Mood Tracker</span>
+            </div>
+            <p>Track how you're feeling today.</p>
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                margin-top: 1rem;
+                flex-wrap: wrap;
+              "
+            >
+              <button class="btn" onclick="setMood('happy')">😊 Happy</button>
+              <button class="btn" onclick="setMood('calm')">😌 Calm</button>
+              <button class="btn" onclick="setMood('sad')">😢 Sad</button>
+              <button class="btn" onclick="setMood('angry')">😠 Angry</button>
+            </div>
+            <div id="mood-display" style="margin-top: 1rem"></div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">💭</span>
+              <span class="card-title">Positive Thoughts</span>
+            </div>
+            <p>Read encouraging messages.</p>
+            <button class="btn" onclick="showPositiveThought()">
+              Get Encouragement
+            </button>
+            <div
+              id="positive-thought"
+              style="
+                margin-top: 1rem;
+                padding: 1rem;
+                background: var(--card-bg);
+                border-radius: 8px;
+                font-style: italic;
+              "
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Life Skills Section -->
+      <section id="life-skills" class="section">
+        <h2>🏠 Life Skills</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">👨‍🍳</span>
+              <span class="card-title">Cooking Basics</span>
+            </div>
+            <p>Learn simple, safe cooking techniques.</p>
+            <button class="btn" onclick="cookingLesson()">Start Lesson</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🧼</span>
+              <span class="card-title">Hygiene Checklist</span>
+            </div>
+            <p>Daily personal care routine.</p>
+            <button class="btn" onclick="showHygieneList()">
+              View Checklist
+            </button>
+            <ul
+              id="hygiene-list"
+              class="checklist"
+              style="display: none; margin-top: 1rem"
+            >
+              <li onclick="toggleComplete(this)">Brush teeth</li>
+              <li onclick="toggleComplete(this)">Wash face</li>
+              <li onclick="toggleComplete(this)">Shower/bath</li>
+              <li onclick="toggleComplete(this)">Use deodorant</li>
+              <li onclick="toggleComplete(this)">Comb hair</li>
+              <li onclick="toggleComplete(this)">Clean clothes</li>
+            </ul>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🧹</span>
+              <span class="card-title">Cleaning Tasks</span>
+            </div>
+            <p>Learn household cleaning basics.</p>
+            <button class="btn" onclick="cleaningGame()">
+              Practice Cleaning
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Health Section -->
+      <section id="health" class="section">
+        <h2>🍎 Health & Nutrition</h2>
+
+        <div class="activity-grid">
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🥗</span>
+              <span class="card-title">Nutrition Game</span>
+            </div>
+            <p>Sort foods into healthy and unhealthy categories.</p>
+            <button class="btn" onclick="nutritionGame()">Play Game</button>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">💧</span>
+              <span class="card-title">Water Tracker</span>
+            </div>
+            <p>Track daily water intake.</p>
+            <div style="margin-top: 1rem">
+              <div style="font-size: 1.5rem; margin-bottom: 1rem">
+                Water today: <span id="water-count">0</span> glasses 💧
+              </div>
+              <button class="btn" onclick="addWater()">Add Glass</button>
+              <button class="btn warning" onclick="resetWater()">Reset</button>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                id="water-progress"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="card-header">
+              <span class="card-icon">🏃‍♂️</span>
+              <span class="card-title">Exercise Tracker</span>
+            </div>
+            <p>Log different types of physical activity.</p>
+            <button class="btn" onclick="logExercise()">Log Activity</button>
+            <div id="exercise-log" style="margin-top: 1rem"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <script>
+    
+      let currentTheme = "light";
+      let gameData = {
+        memoryCards: [],
+        flippedCards: [],
+        matchedPairs: 0,
+        gameTime: 0,
+        gameTimer: null,
+      };
+      let activityProgress = {
+        daily: 0,
+        weekly: 0,
+        water: 0,
+        exercises: [],
+      };
+
+  
+      function toggleTheme() {
+        const body = document.body;
+        const toggle = document.querySelector(".theme-toggle");
+
+        if (currentTheme === "light") {
+          body.setAttribute("data-theme", "dark");
+          toggle.textContent = "☀️ Light Mode";
+          currentTheme = "dark";
+        } else {
+          body.removeAttribute("data-theme");
+          toggle.textContent = "🌙 Dark Mode";
+          currentTheme = "light";
+        }
+      }
+
+      function showSection(sectionId) {
+        document.querySelectorAll(".section").forEach((section) => {
+          section.classList.remove("active");
+        });
+
+        document.querySelectorAll(".nav-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        document.getElementById(sectionId).classList.add("active");
+
+        event.target.classList.add("active");
+      }
+
+      function startMemoryGame() {
+        const colors = ["🔴", "🔵", "🟢", "🟡", "🟣", "🟠", "⚪", "⚫"];
+        const gameColors = [...colors, ...colors]; // Duplicate for pairs
+
+        for (let i = gameColors.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [gameColors[i], gameColors[j]] = [gameColors[j], gameColors[i]];
+        }
+
+        gameData.memoryCards = gameColors;
+        gameData.flippedCards = [];
+        gameData.matchedPairs = 0;
+        gameData.gameTime = 0;
+
+        const gameArea = document.getElementById("memory-game");
+        const grid = document.getElementById("memory-grid");
+
+        grid.innerHTML = "";
+
+        gameColors.forEach((color, index) => {
+          const card = document.createElement("div");
+          card.className = "memory-card";
+          card.dataset.index = index;
+          card.dataset.color = color;
+          card.textContent = "?";
+          card.onclick = () => flipCard(card);
+          grid.appendChild(card);
+        });
+
+        gameArea.style.display = "block";
+        startGameTimer();
+      }
+
+      function flipCard(card) {
+        if (
+          gameData.flippedCards.length >= 2 ||
+          card.classList.contains("flipped")
+        )
+          return;
+
+        card.classList.add("flipped");
+        card.textContent = card.dataset.color;
+        gameData.flippedCards.push(card);
+
+        if (gameData.flippedCards.length === 2) {
+          setTimeout(checkMatch, 1000);
+        }
+      }
+
+      function checkMatch() {
+        const [card1, card2] = gameData.flippedCards;
+
+        if (card1.dataset.color === card2.dataset.color) {
+          gameData.matchedPairs++;
+          if (gameData.matchedPairs === 8) {
+            clearInterval(gameData.gameTimer);
+            showModal(
+              `Congratulations! You completed the game in ${gameData.gameTime} seconds!`
+            );
+            updateProgress();
+          }
+        } else {
+          card1.classList.remove("flipped");
+          card2.classList.remove("flipped");
+          card1.textContent = "?";
+          card2.textContent = "?";
+        }
+
+        gameData.flippedCards = [];
+      }
+
+      function startGameTimer() {
+        gameData.gameTimer = setInterval(() => {
+          gameData.gameTime++;
+          document.getElementById(
+            "game-timer"
+          ).textContent = `Time: ${gameData.gameTime}s`;
+        }, 1000);
+      }
+
+      function resetMemoryGame() {
+        clearInterval(gameData.gameTimer);
+        startMemoryGame();
+      }
+
+      function closeMemoryGame() {
+        clearInterval(gameData.gameTimer);
+        document.getElementById("memory-game").style.display = "none";
+      }
+
+      function changeBackground(color) {
+        document.body.style.backgroundColor = color;
+        setTimeout(() => {
+          document.body.style.backgroundColor = "var(--bg-color)";
+        }, 3000);
+      }
+
+      function playSoundPattern() {
+        const patterns = [
+          "🔊 🔊 🔇",
+          "🔇 🔊 🔊 🔇",
+          "🔊 🔇 🔊",
+          "🔊 🔊 🔊 🔇 🔇",
+        ];
+        const randomPattern =
+          patterns[Math.floor(Math.random() * patterns.length)];
+        document.getElementById("sound-sequence").textContent = randomPattern;
+      }
+
+      function showPhrases() {
+        const phrases = [
+          "Please",
+          "Thank you",
+          "Excuse me",
+          "How are you?",
+          "I need help",
+          "Where is...?",
+          "How much does this cost?",
+          "Nice to meet you",
+          "Have a good day",
+          "See you later",
+        ];
+
+        const content = `
+                <h3>Daily Phrases</h3>
+                <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                    ${phrases
+                      .map(
+                        (phrase) => `
+                        <div style="padding: 1rem; background: var(--card-bg); border-radius: 8px; cursor: pointer;" 
+                             onclick="speakPhrase('${phrase}')">
+                            "${phrase}"
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+            `;
+        showModal(content);
+      }
+
+      function speakPhrase(phrase) {
+        if ("speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(phrase);
+          speechSynthesis.speak(utterance);
+        }
+      }
+
+      function playGreeting(timeOfDay) {
+        const greetings = {
+          morning: "Good morning! Have a wonderful day!",
+          afternoon: "Good afternoon! Hope your day is going well!",
+          evening: "Good evening! Hope you had a great day!",
+        };
+
+        document.getElementById("greeting-display").textContent =
+          greetings[timeOfDay];
+        speakPhrase(greetings[timeOfDay]);
+      }
+
+      function buildQuestion() {
+        const starters = ["What", "Where", "When", "How", "Why", "Who"];
+        const topics = [
+          "is the bathroom",
+          "time is it",
+          "much does this cost",
+          "can I find",
+          "do I get to",
+        ];
+        const endings = ["?", " please?", " thank you?"];
+
+        const question =
+          starters[Math.floor(Math.random() * starters.length)] +
+          " " +
+          topics[Math.floor(Math.random() * topics.length)] +
+          endings[Math.floor(Math.random() * endings.length)];
+
+        document.getElementById("question-display").innerHTML = `
+                <h4>Practice this question:</h4>
+                <p style="font-size: 1.3rem; color: var(--primary-color);">"${question}"</p>
+                <button class="btn" onclick="speakPhrase('${question}')">🔊 Listen</button>
+            `;
+      }
+
+      function trafficQuiz() {
+        const questions = [
+          {
+            q: "What does a red light mean?",
+            a: "Stop",
+            options: ["Stop", "Go", "Slow down"],
+          },
+          {
+            q: "When is it safe to cross the street?",
+            a: "When the walk signal shows",
+            options: [
+              "Anytime",
+              "When the walk signal shows",
+              "When cars stop",
+            ],
+          },
+          {
+            q: "What should you do before crossing?",
+            a: "Look both ways",
+            options: ["Run quickly", "Look both ways", "Just go"],
+          },
+        ];
+
+        const randomQ = questions[Math.floor(Math.random() * questions.length)];
+
+        const content = `
+                <h3>Traffic Safety Quiz</h3>
+                <p style="font-size: 1.2rem; margin: 1rem 0;">${randomQ.q}</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    ${randomQ.options
+                      .map(
+                        (option) => `
+                        <button class="btn" onclick="checkTrafficAnswer('${option}', '${randomQ.a}')">${option}</button>
+                    `
+                      )
+                      .join("")}
+                </div>
+                <div id="quiz-result" style="margin-top: 1rem;"></div>
+            `;
+
+        document.getElementById("traffic-quiz").innerHTML = content;
+      }
+
+      function checkTrafficAnswer(selected, correct) {
+        const result = document.getElementById("quiz-result");
+        if (selected === correct) {
+          result.innerHTML =
+            '<p style="color: var(--secondary-color); font-weight: bold;">✅ Correct! Great job!</p>';
+          updateProgress();
+        } else {
+          result.innerHTML = `<p style="color: var(--accent-color);">❌ Try again! The correct answer is: ${correct}</p>`;
+        }
+      }
+
+      function startBreathing() {
+        const circle = document.getElementById("breathing-circle");
+        const text = document.getElementById("breathing-text");
+        circle.style.display = "flex";
+
+        let cycle = 0;
+        const breathingInterval = setInterval(() => {
+          if (cycle % 2 === 0) {
+            circle.classList.add("expand");
+            text.textContent = "Breathe In";
+          } else {
+            circle.classList.remove("expand");
+            text.textContent = "Breathe Out";
+          }
+          cycle++;
+
+          if (cycle >= 10) {
+            clearInterval(breathingInterval);
+            circle.style.display = "none";
+            showModal(
+              "Great job! You completed the breathing exercise. How do you feel?"
+            );
+            updateProgress();
+          }
+        }, 4000);
+      }
+
+      function setMood(mood) {
+        const moods = {
+          happy: "😊 You're feeling happy! That's wonderful!",
+          calm: "😌 You're feeling calm and peaceful.",
+          sad: "😢 It's okay to feel sad sometimes. Take care of yourself.",
+          angry: "😠 When feeling angry, try taking deep breaths.",
+        };
+
+        document.getElementById("mood-display").innerHTML = `
+                <p>${moods[mood]}</p>
+                <small>Logged at ${new Date().toLocaleTimeString()}</small>
+            `;
+        updateProgress();
+      }
+
+      function showPositiveThought() {
+        const thoughts = [
+          "You are capable of amazing things! 🌟",
+          "Every small step counts! 👣",
+          "You are learning and growing every day! 🌱",
+          "Your effort makes a difference! 💪",
+          "You are worthy of kindness and respect! ❤️",
+          "Progress, not perfection! 🎯",
+          "You have unique talents and abilities! ⭐",
+          "Today is full of possibilities! 🌈",
+        ];
+
+        const randomThought =
+          thoughts[Math.floor(Math.random() * thoughts.length)];
+        document.getElementById("positive-thought").textContent = randomThought;
+      }
+
+      function showHygieneList() {
+        const list = document.getElementById("hygiene-list");
+        list.style.display = list.style.display === "none" ? "block" : "none";
+      }
+
+      function toggleComplete(item) {
+        item.classList.toggle("completed");
+        updateProgress();
+      }
+
+      function addWater() {
+        activityProgress.water++;
+        document.getElementById("water-count").textContent =
+          activityProgress.water;
+        const percentage = Math.min((activityProgress.water / 8) * 100, 100);
+        document.getElementById("water-progress").style.width =
+          percentage + "%";
+
+        if (activityProgress.water >= 8) {
+          showModal("🎉 Great job! You reached your daily water goal!");
+          updateProgress();
+        }
+      }
+
+      function resetWater() {
+        activityProgress.water = 0;
+        document.getElementById("water-count").textContent = "0";
+        document.getElementById("water-progress").style.width = "0%";
+      }
+
+      function logExercise() {
+        const exercises = [
+          "Walking",
+          "Stretching",
+          "Dancing",
+          "Cleaning",
+          "Gardening",
+          "Sports",
+        ];
+        const randomExercise =
+          exercises[Math.floor(Math.random() * exercises.length)];
+
+        activityProgress.exercises.push({
+          activity: randomExercise,
+          time: new Date().toLocaleTimeString(),
+        });
+
+        const log = document.getElementById("exercise-log");
+        log.innerHTML = `
+                <p>✅ ${randomExercise} at ${new Date().toLocaleTimeString()}</p>
+                ${activityProgress.exercises
+                  .slice(-3)
+                  .map((ex) => `<small>${ex.activity} at ${ex.time}</small>`)
+                  .join("<br>")}
+            `;
+        updateProgress();
+      }
+
+      function nutritionGame() {
+        const foods = [
+          { name: "Apple 🍎", healthy: true },
+          { name: "Candy 🍭", healthy: false },
+          { name: "Broccoli 🥦", healthy: true },
+          { name: "Soda 🥤", healthy: false },
+          { name: "Fish 🐟", healthy: true },
+          { name: "Chips 🍟", healthy: false },
+        ];
+
+        const randomFood = foods[Math.floor(Math.random() * foods.length)];
+
+        const content = `
+                <h3>Nutrition Game</h3>
+                <p style="font-size: 1.5rem; margin: 2rem 0;">${randomFood.name}</p>
+                <p>Is this food healthy or unhealthy?</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                    <button class="btn" onclick="checkNutrition(true, ${randomFood.healthy})">Healthy</button>
+                    <button class="btn" onclick="checkNutrition(false, ${randomFood.healthy})">Unhealthy</button>
+                </div>
+                <div id="nutrition-result" style="margin-top: 1rem;"></div>
+            `;
+
+        showModal(content);
+      }
+
+      function checkNutrition(guess, correct) {
+        const result = document.getElementById("nutrition-result");
+        if (guess === correct) {
+          result.innerHTML =
+            '<p style="color: var(--secondary-color); font-weight: bold;">✅ Correct! Well done!</p>';
+          updateProgress();
+        } else {
+          result.innerHTML =
+            '<p style="color: var(--accent-color);">❌ Try again! Think about what makes food healthy.</p>';
+        }
+      }
+
+      function cookingLesson() {
+        const lessons = [
+          {
+            title: "Making a Sandwich",
+            steps: [
+              "Wash your hands",
+              "Get bread and fillings",
+              "Put filling on bread",
+              "Close sandwich",
+              "Clean up",
+            ],
+          },
+          {
+            title: "Boiling Water",
+            steps: [
+              "Fill pot with water",
+              "Put pot on stove",
+              "Turn on heat",
+              "Wait for bubbles",
+              "Turn off heat when done",
+            ],
+          },
+          {
+            title: "Preparing Salad",
+            steps: [
+              "Wash vegetables",
+              "Cut vegetables safely",
+              "Put in bowl",
+              "Add dressing",
+              "Mix gently",
+            ],
+          },
+        ];
+
+        const randomLesson =
+          lessons[Math.floor(Math.random() * lessons.length)];
+
+        const content = `
+                <h3>${randomLesson.title}</h3>
+                <ol style="text-align: left; margin: 1rem 0;">
+                    ${randomLesson.steps
+                      .map(
+                        (step) => `<li style="margin: 0.5rem 0;">${step}</li>`
+                      )
+                      .join("")}
+                </ol>
+                <p style="color: var(--accent-color); font-weight: bold;">⚠️ Always ask for help when using kitchen tools!</p>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      function updateProgress() {
+        activityProgress.daily++;
+        const dailyScore = document.getElementById("daily-score");
+        const dailyProgress = document.getElementById("daily-progress");
+
+        dailyScore.textContent = `${Math.min(activityProgress.daily, 8)}/8`;
+        const percentage = Math.min((activityProgress.daily / 8) * 100, 100);
+        dailyProgress.style.width = percentage + "%";
+
+        if (activityProgress.daily >= 8) {
+          const stars = document.getElementById("weekly-stars");
+          stars.textContent = "⭐⭐⭐⭐⭐";
+        }
+      }
+
+      function showModal(content) {
+        document.getElementById("modal-body").innerHTML = content;
+        document.getElementById("modal").style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("modal").style.display = "none";
+      }
+
+      function shoppingGame() {
+        const items = [
+          { name: "Milk", price: 3.5, essential: true },
+          { name: "Bread", price: 2.25, essential: true },
+          { name: "Candy", price: 1.99, essential: false },
+          { name: "Apples", price: 4.0, essential: true },
+        ];
+
+        let budget = 10.0;
+        let cart = [];
+
+        const content = `
+                <h3>Shopping Game</h3>
+                <p>Budget: ${budget.toFixed(2)}</p>
+                <p>Choose items for your cart:</p>
+                <div id="shopping-items" style="margin: 1rem 0;">
+                    ${items
+                      .map(
+                        (item, index) => `
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem; border: 1px solid var(--border-color); margin: 0.5rem 0;">
+                            <span>${item.name} - ${item.price.toFixed(2)}</span>
+                            <button class="btn" onclick="addToCart(${index})">Add</button>
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+                <div id="cart-display">Cart: Empty</div>
+                <div id="total-display">Total: $0.00</div>
+            `;
+
+        showModal(content);
+      }
+
+      function transportPractice() {
+        const content = `
+                <h3>Public Transport Practice</h3>
+                <div style="text-align: left;">
+                    <h4>Bus Steps:</h4>
+                    <ol>
+                        <li>Wait at bus stop</li>
+                        <li>Check bus number</li>
+                        <li>Have exact change or card ready</li>
+                        <li>Let people exit first</li>
+                        <li>Show ticket/pay fare</li>
+                        <li>Find a seat or hold handrail</li>
+                        <li>Press stop button before your stop</li>
+                        <li>Exit safely</li>
+                    </ol>
+                    
+                    <h4>Safety Tips:</h4>
+                    <ul>
+                        <li>Keep belongings secure</li>
+                        <li>Be aware of your surroundings</li>
+                        <li>Ask driver for help if needed</li>
+                        <li>Have route planned in advance</li>
+                    </ul>
+                </div>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      function routePlanner() {
+        const destinations = [
+          "Grocery Store",
+          "Library",
+          "Doctor's Office",
+          "Bank",
+          "Park",
+          "Restaurant",
+        ];
+
+        const randomDest =
+          destinations[Math.floor(Math.random() * destinations.length)];
+
+        const content = `
+                <h3>Route to ${randomDest}</h3>
+                <div style="text-align: left; margin: 1rem 0;">
+                    <h4>Planning Steps:</h4>
+                    <ol>
+                        <li>Find the address</li>
+                        <li>Choose transportation method</li>
+                        <li>Check the time needed</li>
+                        <li>Plan return trip</li>
+                        <li>Tell someone where you're going</li>
+                        <li>Bring phone and emergency contacts</li>
+                    </ol>
+                    
+                    <p style="margin-top: 1rem; padding: 1rem; background: var(--card-bg); border-radius: 8px;">
+                        💡 <strong>Remember:</strong> Always practice new routes with someone you trust first!
+                    </p>
+                </div>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      function storeMatch() {
+        const stores = [
+          { name: "Grocery Store", items: "Food, drinks, household items" },
+          { name: "Pharmacy", items: "Medicine, health products" },
+          { name: "Bank", items: "Money services, ATM" },
+          { name: "Post Office", items: "Mail, packages, stamps" },
+          { name: "Library", items: "Books, computers, programs" },
+        ];
+
+        const randomStore = stores[Math.floor(Math.random() * stores.length)];
+
+        const content = `
+                <h3>Store Information</h3>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <h4 style="color: var(--primary-color);">${randomStore.name}</h4>
+                    <p style="margin: 1rem 0;">What can you find here?</p>
+                    <p style="font-size: 1.2rem; background: var(--card-bg); padding: 1rem; border-radius: 8px;">
+                        ${randomStore.items}
+                    </p>
+                </div>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      function socialScenario() {
+        const scenarios = [
+          {
+            situation: "Someone is in line ahead of you",
+            response: "Wait patiently, don't push or cut in line",
+          },
+          {
+            situation: "You need to ask for help in a store",
+            response: "Say 'Excuse me, could you please help me?'",
+          },
+          {
+            situation: "Someone says 'Thank you' to you",
+            response: "Say 'You're welcome' or 'No problem'",
+          },
+          {
+            situation: "You accidentally bump into someone",
+            response: "Say 'I'm sorry' or 'Excuse me'",
+          },
+        ];
+
+        const randomScenario =
+          scenarios[Math.floor(Math.random() * scenarios.length)];
+
+        const content = `
+                <h3>Social Scenario Practice</h3>
+                <div style="margin: 2rem 0;">
+                    <h4>Situation:</h4>
+                    <p style="background: var(--card-bg); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        ${randomScenario.situation}
+                    </p>
+                    
+                    <h4>Good Response:</h4>
+                    <p style="background: var(--secondary-color); color: white; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        ${randomScenario.response}
+                    </p>
+                    
+                    <button class="btn" onclick="speakPhrase('${randomScenario.response}')">🔊 Practice Saying It</button>
+                </div>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      function cleaningGame() {
+        const tasks = [
+          {
+            task: "Washing Dishes",
+            steps: [
+              "Rinse dishes",
+              "Add soap",
+              "Scrub gently",
+              "Rinse clean",
+              "Dry and put away",
+            ],
+          },
+          {
+            task: "Making Bed",
+            steps: [
+              "Pull sheets tight",
+              "Fluff pillows",
+              "Fold blanket neatly",
+              "Arrange pillows",
+            ],
+          },
+          {
+            task: "Cleaning Table",
+            steps: [
+              "Clear items off table",
+              "Wipe with damp cloth",
+              "Dry with clean cloth",
+              "Put items back",
+            ],
+          },
+        ];
+
+        const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
+
+        const content = `
+                <h3>${randomTask.task}</h3>
+                <p>Follow these steps in order:</p>
+                <ol style="text-align: left; margin: 1rem 0;">
+                    ${randomTask.steps
+                      .map(
+                        (step) => `<li style="margin: 0.5rem 0;">${step}</li>`
+                      )
+                      .join("")}
+                </ol>
+                <p style="color: var(--secondary-color); font-weight: bold;">✨ Great job! A clean space feels good!</p>
+            `;
+
+        showModal(content);
+        updateProgress();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const saved = localStorage.getItem("activityProgress");
+        if (saved) {
+          activityProgress = { ...activityProgress, ...JSON.parse(saved) };
+          updateDisplay();
+        }
+
+        setInterval(() => {
+          localStorage.setItem(
+            "activityProgress",
+            JSON.stringify(activityProgress)
+          );
+        }, 30000);
+      });
+
+      function updateDisplay() {
+        document.getElementById("water-count").textContent =
+          activityProgress.water || 0;
+        const waterPercentage = Math.min(
+          ((activityProgress.water || 0) / 8) * 100,
+          100
+        );
+        document.getElementById("water-progress").style.width =
+          waterPercentage + "%";
+
+        const dailyScore = document.getElementById("daily-score");
+        const dailyProgress = document.getElementById("daily-progress");
+        dailyScore.textContent = `${Math.min(
+          activityProgress.daily || 0,
+          8
+        )}/8`;
+        const percentage = Math.min(
+          ((activityProgress.daily || 0) / 8) * 100,
+          100
+        );
+        dailyProgress.style.width = percentage + "%";
+      }
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("modal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>
